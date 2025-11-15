@@ -47,7 +47,7 @@ const startServer = async () => {
   try {
     await connectDatabase();
 
-    server = app.listen(PORT, () => {
+    server = app.listen(PORT, '0.0.0.0', () => {
       logger.info(`Server is running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`API available at: http://localhost:${PORT}/api/v1`);
