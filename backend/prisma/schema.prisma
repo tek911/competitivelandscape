@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String
+  passwordHash  String?
+  role          UserRole       @default(USER)
+  preferences   Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  documents     Document[]
+
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  VIEWER
+}
+
+model ProductSpace {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  industry      String?
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  capabilities  Capability[]
+  documents     Document[]
+
+  @@index([name])
+  @@map("product_spaces")
+}
+
+model Capability {
+  id                String              @id @default(uuid())
+  productSpaceId    String
+  category          String
+  name              String
+  description       String?
+  importanceLevel   ImportanceLevel     @default(MEDIUM)
+  metadata          Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  productSpace      ProductSpace        @relation(fields: [productSpaceId], references: [id], onDelete: Cascade)
+  vendorResponses   VendorResponse[]
+
+  @@index([productSpaceId])
+  @@index([category])
+  @@map("capabilities")
+}
+
+enum ImportanceLevel {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Vendor {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  logoUrl         String?
+  website         String?
+  description     String?
+  metadata        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  responses       VendorResponse[]
+
+  @@index([name])
+  @@map("vendors")
+}
+
+model VendorResponse {
+  id                  String          @id @default(uuid())
+  vendorId            String
+  capabilityId        String
+  documentId          String?
+  responseText        String
+  sentimentScore      Float?
+  sentimentLabel      SentimentLabel?
+  sentimentAnalysis   String?
+  confidence          Float?
+  metadata            Json?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  vendor              Vendor          @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  capability          Capability      @relation(fields: [capabilityId], references: [id], onDelete: Cascade)
+  document            Document?       @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@unique([vendorId, capabilityId, documentId])
+  @@index([vendorId])
+  @@index([capabilityId])
+  @@index([documentId])
+  @@map("vendor_responses")
+}
+
+enum SentimentLabel {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  MISLEADING
+  MISSING
+  VAGUE
+}
+
+model Document {
+  id              String           @id @default(uuid())
+  productSpaceId  String?
+  userId          String?
+  type            DocumentType
+  filename        String
+  originalName    String
+  fileSize        Int
+  mimeType        String
+  uploadPath      String?
+  metadata        Json?
+  uploadDate      DateTime         @default(now())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  productSpace    ProductSpace?    @relation(fields: [productSpaceId], references: [id], onDelete: SetNull)
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  responses       VendorResponse[]
+
+  @@index([productSpaceId])
+  @@index([userId])
+  @@index([type])
+  @@index([uploadDate])
+  @@map("documents")
+}
+
+enum DocumentType {
+  RFI
+  COMPARISON
+  CAPABILITY_MATRIX
+  VENDOR_RESPONSE
+  OTHER
+}
+
+model SystemConfig {
+  id              String    @id @default(uuid())
+  key             String    @unique
+  value           String
+  encrypted       Boolean   @default(false)
+  description     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([key])
+  @@map("system_config")
+}
+
+model AuditLog {
+  id              String    @id @default(uuid())
+  userId          String?
+  action          String
+  entityType      String?
+  entityId        String?
+  changes         Json?
+  ipAddress       String?
+  userAgent       String?
+  timestamp       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model CacheEntry {
+  id              String    @id @default(uuid())
+  key             String    @unique
+  value           String
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([key])
+  @@index([expiresAt])
+  @@map("cache_entries")
+}
