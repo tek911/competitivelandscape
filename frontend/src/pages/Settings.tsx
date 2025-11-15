@@ -25,7 +25,7 @@ export function Settings() {
     message: string;
   } | null>(null);
 
-  const { data: bedrockConfig, isLoading } = useQuery({
+  const { data: bedrockConfig } = useQuery({
     queryKey: ['bedrockConfig'],
     queryFn: settingsService.getBedrockConfig,
   });

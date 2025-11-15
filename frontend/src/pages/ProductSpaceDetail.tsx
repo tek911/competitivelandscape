@@ -13,7 +13,7 @@ import {
   Center,
   Modal,
 } from '@mantine/core';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { useDisclosure } from '@mantine/hooks';
@@ -39,6 +39,12 @@ export function ProductSpaceDetail() {
     enabled: !!id,
   });
 
+  const { data: capabilities = [] } = useQuery({
+    queryKey: ['capabilities', id],
+    queryFn: () => productSpaceService.getCapabilities(id!),
+    enabled: !!id,
+  });
+
   const handleUpdateCapabilities = async () => {
     if (!id) return;
 
@@ -51,6 +57,7 @@ export function ProductSpaceDetail() {
         color: 'blue',
       });
       queryClient.invalidateQueries({ queryKey: ['productSpace', id] });
+      queryClient.invalidateQueries({ queryKey: ['capabilities', id] });
     } catch (error) {
       // Error handled by interceptor
     } finally {
@@ -112,13 +119,13 @@ export function ProductSpaceDetail() {
     );
   }
 
-  const groupedCapabilities = productSpace.capabilities?.reduce((acc, cap) => {
+  const groupedCapabilities = capabilities.reduce((acc, cap) => {
     if (!acc[cap.category]) {
       acc[cap.category] = [];
     }
     acc[cap.category].push(cap);
     return acc;
-  }, {} as Record<string, typeof productSpace.capabilities>);
+  }, {} as Record<string, typeof capabilities>);
 
   return (
     <Container size="xl">
