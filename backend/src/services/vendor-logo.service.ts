@@ -6,13 +6,11 @@ import crypto from 'crypto';
 
 export class VendorLogoService {
   private cache: CacheService;
-  private clearbitApiKey: string | null;
   private googleApiKey: string | null;
   private googleSearchEngineId: string | null;
 
   constructor() {
     this.cache = CacheService.getInstance();
-    this.clearbitApiKey = process.env.CLEARBIT_API_KEY || null;
     this.googleApiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY || null;
     this.googleSearchEngineId = process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID || null;
   }
@@ -54,7 +52,7 @@ export class VendorLogoService {
 
       const response = await axios.head(url, {
         timeout: 5000,
-        validateStatus: (status) => status === 200,
+        validateStatus: (status: number) => status === 200,
       });
 
       if (response.status === 200) {

@@ -83,7 +83,7 @@ export class ExportService {
 
       const worksheet = XLSX.utils.aoa_to_sheet(data);
 
-      const columnWidths = headers.map((header, i) => {
+      const columnWidths = headers.map((_header, i) => {
         if (i === 0) return { wch: 20 }; // Category
         if (i === 1) return { wch: 30 }; // Capability
         if (options.includeMetadata && (i === 2 || i === 3)) return { wch: 40 }; // Description/Importance

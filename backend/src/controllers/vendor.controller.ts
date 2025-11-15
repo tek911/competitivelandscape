@@ -6,7 +6,7 @@ import { NotFoundError, BadRequestError } from '../utils/errors';
 import { logger } from '../utils/logger';
 
 export class VendorController {
-  async getAll(req: AuthenticatedRequest, res: Response) {
+  async getAll(_req: AuthenticatedRequest, res: Response) {
     const vendors = await prisma.vendor.findMany({
       include: {
         _count: {
