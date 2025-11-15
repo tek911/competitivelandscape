@@ -14,7 +14,7 @@ import { logger } from './utils/logger';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 app.use(pinoHttp({ logger }));
 
