@@ -7,7 +7,7 @@ import { BadRequestError } from '../utils/errors';
 import { logger } from '../utils/logger';
 
 export class SettingsController {
-  async getBedrockConfig(req: AuthenticatedRequest, res: Response) {
+  async getBedrockConfig(_req: AuthenticatedRequest, res: Response) {
     const configs = await prisma.systemConfig.findMany({
       where: {
         key: {
@@ -52,7 +52,7 @@ export class SettingsController {
     });
   }
 
-  async testBedrockConnection(req: AuthenticatedRequest, res: Response) {
+  async testBedrockConnection(_req: AuthenticatedRequest, res: Response) {
     try {
       const result = await bedrockService.analyzeSentiment(
         'Test Capability',
@@ -76,7 +76,7 @@ export class SettingsController {
     }
   }
 
-  async getAllSettings(req: AuthenticatedRequest, res: Response) {
+  async getAllSettings(_req: AuthenticatedRequest, res: Response) {
     const settings = await prisma.systemConfig.findMany({
       select: {
         id: true,
